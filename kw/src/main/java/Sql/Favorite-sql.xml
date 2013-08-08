@@ -1,0 +1,57 @@
+<!DOCTYPE mapper PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN" 
+											"http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd">
+	
+	<!--  
+	 -->			
+<mapper namespace="kr.ac.kw.Mapper.FavoriteSongMapper"> 
+
+	 <insert id="insertFS" parameterType="FavoriteSongForm">
+	 	insert into favoritesong_tb(
+	 												fs_num, 
+	 												id, 
+	 												fs_1,
+	 												genre
+	 												) 
+	 								  VALUES(
+	 								  				fs_autonum.nextval, 
+	 								  				#{id} , 
+	 								  				#{fs_1},
+	 								  				#{genre}
+	 								  			   )
+ 	 </insert>
+ 	 
+ 	 <select id="selectFSList" parameterType="String" resultType="FavoriteSongVo">
+ 	 	select 
+ 	 				fs_num, 
+ 	 				id, 
+ 	 				fs_1,
+ 	 				genre
+ 	 	FROM 
+ 	 				favoritesong_tb 
+ 	 	WHERE
+ 	 				id=#{id}
+ 	 	
+ 	 </select>
+ 	 
+ 	  <select id="selectAllFSList" resultType="FavoriteSongVo">
+ 	 	select 
+ 	 				fs_num, 
+ 	 				id, 
+ 	 				fs_1,
+ 	 				genre
+ 	 	FROM 
+ 	 				favoritesong_tb 
+ 	 </select>
+ 	 
+ 	 <select id="selectCount" parameterType="hashMap" resultType="Integer">
+ 	 	 select 
+ 	 	 	count(*) 
+ 	 	 from 
+ 	 	 	favoritesong_tb 
+ 	 	 where 
+ 	 	 	id=#{id}
+ 	 	 and 
+ 	 	 	genre like #{genre}
+ 	 </select>
+	 
+</mapper>							

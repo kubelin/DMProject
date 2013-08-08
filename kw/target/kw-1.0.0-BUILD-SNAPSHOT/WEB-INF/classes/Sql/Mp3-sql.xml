@@ -1,0 +1,262 @@
+<!DOCTYPE mapper PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN" 
+											"http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd">
+	
+<mapper namespace="kr.ac.kw.Mapper.Mp3Mapper"> 
+
+	 <insert id="insertMp3" parameterType="Mp3Form">
+	 
+	 	insert INTO musiclist_tb( 
+	 										  song_number, 
+	 										  title, 
+	 										  author, 
+	 										  genre, 
+	 										  album, 
+	 										  song_date, 
+	 										  copyright ,
+ 										      author_nationality,
+					                          author_gender,
+					                          author_genre,
+					                          author_similar,
+					                          author_act,
+					                          tempo
+	 										  ) 
+    			VALUES (  
+    							ml_autonum.nextval, 
+    						   #{title},
+    						   #{author},  
+    						   #{genre, javaType=String, jdbcType=VARCHAR}, 
+    						   #{album},
+    						   #{song_date},
+    						    #{copyright, javaType=String, jdbcType=VARCHAR},
+    						    #{author_nationality, javaType=String, jdbcType=VARCHAR},
+    						    #{author_gender, javaType=String, jdbcType=VARCHAR},
+    						    #{author_genre, javaType=String, jdbcType=VARCHAR},
+    						    #{author_similar, javaType=String, jdbcType=VARCHAR},
+    						     #{author_act, javaType=String, jdbcType=VARCHAR},
+    						     #{tempo}
+    						   )
+    						   
+		 </insert>
+		 
+		 <select id="isExist" parameterType="String" resultType="string">
+		 	
+		 	SELECT distinct
+		 				DECODE(
+		 								title, 
+		 								#{title},
+		 								'ok',
+		 								'no'
+		 							 )
+		 							 	AS isnull 
+		 								FROM 
+		 								musiclist_tb		 	
+		 </select>
+		 
+		 <!--  Total Page 가져오기 -->
+		 <select id="selectTotalCount" parameterType="String" resultType="Integer">
+	 		SELECT 
+	 			ceil(count(*)/10) 
+ 			FROM 
+ 				musiclist_tb 
+			WHERE 
+				genre like #{genre}
+		 </select>
+		 
+		 <!--  페이징 적용  
+		
+		 -->
+		 <select id="selectMp3List" parameterType="hashmap" resultType="Mp3Vo">
+		 	SELECT 
+		 	 /*+ INDEX(XPK음악리스트) */ 
+		 				* 
+		 	FROM ( 
+		 				SELECT 
+		 						song_number, 
+		 						title, 
+		 						genre, 
+		 						author, 
+		 						album, 
+		 						song_date, 
+              					recommended, 
+              					author_nationality, 
+              					author_gender, 
+              					author_genre, 
+              					author_similar, 
+              					author_act, 
+              					tempo, 
+              					CEIL(rownum/10) 
+              				AS page 
+              				FROM 
+              					musiclist_tb  
+           					WHERE 
+           						genre=#{genre} ) a 
+        					WHERE page = #{page}
+		 </select>
+		 
+		 <select id="selectMp3SoulList" parameterType="String" resultType="Mp3Vo">
+		 <![CDATA[
+		 	select 	song_number,
+		 				title,
+		 				author,
+		 				album,
+		 				song_date,
+		 				genre,
+		 				copyright,
+		 				recommended,
+                        tempo
+		 	 from 
+		 	 			musiclist_tb 
+		 	 where 
+		 	 			genre like 'Soul' 
+		 	 			or 
+		 	 			genre like 'R&%'
+		 	]]>
+		 </select>
+		 
+		 <!-- 
+		 /*+ INDEX(XPK음악리스트) */ 
+		  -->
+		 <select id="selectMp3LikeList" parameterType="hashmap" resultType="Mp3Vo">
+		 <![CDATA[
+		 	select 	
+		 		/*+ INDEX(XPK음악리스트) */ 
+		 				*
+		 	 from 
+	 	 			( 
+	 				SELECT 
+	 						song_number, 
+	 						title,
+	 						genre, 
+	 						author, 
+	 						album, 
+	 						song_date, 
+         					recommended, 
+         					author_nationality, 
+         					author_gender, 
+         					author_genre, 
+         					author_similar, 
+         					author_act, 
+         					tempo, 
+         					CEIL(rownum/10) 
+            				AS page 
+            				FROM 
+            					musiclist_tb  
+         					WHERE 
+        						genre  like #{genre}  ) a 
+		 	 where 
+	 	 				page = #{page}
+		 	]]>
+		 </select>
+		 
+		 <!--   추천된 모든 Mp3 가져오기 -->
+		 <select id="selectMp3RecommandedList" parameterType="String" resultType="Mp3Vo">
+		 		select 	  
+		 					  song_number, 
+							  title, 
+							  author, 
+							  genre, 
+							  album, 
+							  song_date, 
+							  copyright ,
+						      author_nationality,
+	                          author_gender,
+	                          author_genre,
+	                          author_similar,
+	                          author_act,
+	                          tempo 
+	            from 
+	            			  musiclist_tb 
+        		where 
+        					  song_number 
+        		IN ( 
+      			select 
+      						  fs_1 
+    			from 
+    						  favoritesong_tb
+    		    where 
+    		    			  id = #{id}
+    		    	 ) 		 
+		 </select>
+		 		 
+		 <select id="selectBalladList" resultType="String">
+		 		DECLARE
+				  vTest VARCHAR2(100);
+				BEGIN
+				  select title INTO vTest
+				  from musiclist_tb
+				  where title='뜨거운 안녕 (Feat. 성시경)';
+				  dbms_output.put_line(vTest);
+				END;
+				 <![CDATA[
+				/
+		 		  ]]> 	
+		 </select>
+		 
+		 <update id="tempUpdate" parameterType="String">
+		 	update musiclist_tb 
+		 			set 
+		 				tempo= 110 
+		 			where 
+		 				song_number 
+		 			IN 	
+		 				( 		
+		 						select 
+		 							song_number 
+		 						from 
+		 							musiclist_tb 
+		 						where 
+		 							title = '사랑이라면' 
+		 				)
+		 </update>
+		 
+		 <!--  increase Recommand count  -->
+		 <update id="updateCount" parameterType="String">
+		 	update 
+		 		musiclist_tb 
+		 	set 
+		 		recommended=(recommended+1) 
+		 	where 
+		 		song_number=#{song_number}
+		 </update>
+		 
+		 <!-- 
+		 		추천1 결과 받아오기
+		  -->
+		  <select id="selectRecommandMp3v1" parameterType="String" resultType="Mp3Vo">
+		  	 select 
+		  	 		* 
+		  	 from 
+		  	 		musiclist_tb 
+		  	 where 
+		  	 		song_number 
+		  	 in ( ${value} )				 	 		  
+		  </select>
+		 
+		 <!--
+		 		 추천2 쿼리
+		  -->
+		  <select id="selectRecommandMp3v2" parameterType="hashmap" resultType="Mp3Vo">
+			  	select 
+			  	* 
+			  	from 
+			  		musiclist_tb 
+			  	where 
+			  		genre=#{genre}
+			  	and 
+			  		author_gender = #{author_gender, javaType=String, jdbcType=VARCHAR}
+			  	and 
+			  		author_nationality = #{author_nationality, javaType=String, jdbcType=VARCHAR}
+			  	and 
+			  		author_act = #{author_act, javaType=String, jdbcType=VARCHAR}
+			  	and 
+			  		song_date  BETWEEN #{min_song_date} and #{max_song_date}
+			  	and 
+			  		tempo BETWEEN #{min_tempo} and #{max_tempo}
+			  	order by 
+			  		recommended desc
+		  </select>
+		 
+		 
+</mapper>		
+
+				

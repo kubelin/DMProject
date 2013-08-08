@@ -1,0 +1,65 @@
+<!DOCTYPE mapper PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN" 
+											"http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd">
+	
+<mapper namespace="kr.ac.kw.Mapper.UserMapper"> 
+
+	 <insert id="insertUser" parameterType="UserForm">
+	 	insert INTO user_tb(id, 
+	 								  name,
+	 								  gender, 
+	 								  age, 
+	 								  count,
+	 								  issurvey
+	 								  ) 
+	 			VALUES(#{id}, 
+	 						 #{name}, 
+	 						 #{gender}, 
+	 						 #{age}, 
+	 						 0,
+	 						 0
+	 						 )
+		 </insert>
+		 
+		 <select id="searchUser" parameterType="String" resultType="String">
+		 	select id FROM
+		 					 user_tb 
+		 				 WHERE 
+		 				 	 id=#{id}
+		 </select>
+		 
+		 <select id="selectUser" parameterType="String" resultType="UserVO">
+		 		select 
+		 				id, 
+				   	  name,
+					  gender, 
+					  age, 
+					  count,
+					  issurvey
+		 		from 
+		 			user_tb
+		 		where
+		 			id = #{id}
+		 </select>
+		 
+		  <select id="searchAllUser"  resultType="UserVo">
+		  
+		 		SELECT 
+		              name,
+		              gender,
+		              age,
+		              id
+	              FROM
+	 					 user_tb
+	 					  
+	 	 </select>
+	 	 
+	 	 <update id="updateIsServey" parameterType="String" >
+	 	 		update 
+	 	 			user_tb 
+	 	 		set 
+		 	 		issurvey = 1 
+		 	 	where 
+		 	 		id = #{id}
+	 	 </update>
+	 	 
+</mapper>							

@@ -1,0 +1,31 @@
+<!DOCTYPE mapper PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN" 
+											"http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd">
+	
+<mapper namespace="kr.ac.kw.Mapper.SurveyMapper"> 
+
+	<insert id="insertSurvey" parameterType="SurveyForm">
+		insert into 
+				servey_tb(  
+									id ,
+									recommand_v1,
+									recommand_v2, 
+									etc 
+								) 
+				 values( 
+				 					#{id}, 
+				 					#{recommand_v1},
+				 					#{recommand_v2},
+				 					 #{etc}
+				 				)
+		
+	</insert>
+	
+	<select id="selectAll" resultType="SurveyVo">
+		select 
+				*	
+			from 
+				servey_tb
+	
+	</select>
+
+</mapper>
